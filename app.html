@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+    <head>
+        <title></title>
+        <style>
+            body{ background-color: grey; }
+            canvas{ background-color: white; }
+			textarea{ background-color: black; foreground-color: white;}
+        </style>
+    </head>
+    <body id="body">
+
+    	<center>
+            <canvas id="my-canvas" width="1000" height="800">
+            	Your browser does not support the HTML5 canvas element.
+    		</canvas>
+    	</center>
+
+
+      //includes
+      <script type="text/javascript" src="js/gl-matrix.js"></script>
+      <script type="text/javascript" src="bolsaDeDatos.js"></script>
+      <script type="text/javascript" src="vistas.js"></script>
+
+      <script type="text/javascript" src="codigoMagico.js"></script>
+      <script type="text/javascript" src="Obj3D.js"></script>
+      <script type="text/javascript" src="matrices.js"></script>
+      <script type="text/javascript" src="Camara.js"></script>
+
+      <script type="text/javascript" src="curvaParametrizadores/BSpline.js"></script>
+      <script type="text/javascript" src="curvaParametrizadores/Bezier.js"></script>
+
+      <script type="text/javascript" src='funcionesCrearBuffers/crearCilindro.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearPaloDePoste.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearPelota.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearBolaDeLuz.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearPlancha.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearDeBarridoSpline.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearDeBarridoBezier.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearRusa.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearLampara.js'></script>
+
+        <script>
+
+
+
+            document.getElementById("body").addEventListener("mousedown", onMouseDown);
+            document.getElementById("body").addEventListener("mouseup", onMouseUp);
+            document.getElementById("body").addEventListener("mousemove", onMouseMove);
+            document.getElementById("body").addEventListener("keypress", onPressKey);
+            var isMouseDown = false;
+            var mat4=glMatrix.mat4;
+            var vec3=glMatrix.vec3;
+            var vec4=glMatrix.vec4;
+
+            var gl = null,
+            canvas = null,
+            glProgram = null,
+            fragmentShader = null,
+            vertexShader = null;
+            var plancha;
+            var pelota;
+            var cilindro;
+            var paloDePoste;
+            var bolaDeLuz;
+            var groups = [];
+
+
+            var lampara;
+
+
+            var modelMatrix = mat4.create();
+            //var planchaMatrix = mat4.create();
+            var bolaDeLuzMatrix = mat4.create();
+            var paloDePosteMatrix = mat4.create();
+            var viewMatrix = mat4.create();
+            var projMatrix = mat4.create();
+            var normalMatrix = mat4.create();
+            mat4.identity(normalMatrix);
+            var rotate_angle = -1.57078;
+            colorMaterial=(0.7,0.7,0.7);
+            var previousClientX = 0, previousClientY = 0;
+
+            var vistaActual1eraPersona = [0,0,1];
+            var camara = new Camara(vec3.fromValues(0,0,-9),vec3.fromValues(0,1,0),vec3.fromValues(0,2,10))
+
+            function initWebGL(){
+
+                canvas = document.getElementById("my-canvas");
+
+                try{
+                    gl = canvas.getContext("webgl");
+
+                }catch(e){
+                    alert(  "Error: Your browser does not appear to support WebGL.");
+                }
+
+                if(gl) {
+                    setupWebGL();
+                    initShaders();
+                    setupBuffers();
+                    setupVertexShaderMatrix();
+                    tick();
+
+                }else{
+                    alert(  "Error: Your browser does not appear to support WebGL.");
+                }
+
+            }
+
+
+            function setupWebGL(){
+                gl.enable(gl.DEPTH_TEST);
+                //set the clear color
+                gl.clearColor(0.1, 0.1, 0.2, 1.0);
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+                gl.viewport(0, 0, canvas.width, canvas.height);
+
+                // Matrix de Proyeccion Perspectiva
+
+                mat4.perspective(projMatrix,Math.PI/4, canvas.width / canvas.height, 0.1, 100.0);
+
+                mat4.identity(modelMatrix);
+
+                viewMatrix = mat4.lookAt(viewMatrix,camara.posicion,camara.lookAt,camara.lookUp);
+
+
+              }
+
+            function setupBuffers(){
+                curva = crearCurvaBarridoBezier();
+                rusa = crearRusa();
+                plancha = crearPlancha();
+                pelota = crearPelota();
+                cilindro = crearCilindro();
+                paloDePoste = crearPaloDePoste();
+                bolaDeLuz = crearBolaDeLuz();
+                bolaDeLuz.addChild(paloDePoste);
+                lampara = crearLampara();
+                lampara.translate([0,10,0]);
+                lampara.rotate(Math.PI/2,[1,0,0]);
+            }
+
+
+
+
+            function setupVertexShaderMatrix(){
+
+                //var modelMatrixUniform = gl.getUniformLocation(glProgram, "modelMatrix");
+                var viewMatrixUniform  = gl.getUniformLocation(glProgram, "viewMatrix");
+                var projMatrixUniform  = gl.getUniformLocation(glProgram, "projMatrix");
+                //var normalMatrixUniform  = gl.getUniformLocation(glProgram, "normalMatrix");
+
+                //gl.uniformMatrix4fv(modelMatrixUniform, false, modelMatrix);
+                gl.uniformMatrix4fv(viewMatrixUniform, false, viewMatrix);
+                gl.uniformMatrix4fv(projMatrixUniform, false, projMatrix);
+                //gl.uniformMatrix4fv(normalMatrixUniform, false, normalMatrix);
+            }
+
+            function drawScene(){
+
+                setupVertexShaderMatrix();
+
+                vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
+                gl.enableVertexAttribArray(vertexPositionAttribute);
+                gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
+                gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+                vertexNormalAttribute = gl.getAttribLocation(glProgram, "aVertexNormal");
+                gl.enableVertexAttribArray(vertexNormalAttribute);
+                gl.bindBuffer(gl.ARRAY_BUFFER, trianglesNormalBuffer);
+                gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, trianglesIndexBuffer);
+                gl.drawElements( gl.TRIANGLE_STRIP, trianglesIndexBuffer.number_vertex_point, gl.UNSIGNED_SHORT, 0);
+            }
+
+
+
+
+
+            function animate(){
+                //cambios temporales
+
+                primeraPersona();
+
+            }
+
+            function tick(){
+
+                requestAnimationFrame(tick);
+
+                //while true
+                //drawScene();
+
+                setupVertexShaderMatrix();
+                //plancha.drawObj();
+                //bolaDeLuz.drawObj();
+                lampara.drawObj();
+                //cilindro.drawObj();
+                
+
+                //gl.uniform3f(colorMaterialUniform, 1.0,0.0,0.0);
+
+                //rusa.drawObj();
+                animate();
+            }
+
+            window.onload=loadVertexShader;
+
+
+
+
+            var mouse = {x: 0, y: 0};
+
+            function onMouseMove(e){
+          		mouse.x = e.clientX || e.pageX;
+          		mouse.y = e.clientY || e.pageY
+          	}
+
+            function onMouseDown(event){
+              if(!isMouseDown){
+                isMouseDown = true;
+                previousClientX = mouse.x, previousClientY = mouse.y
+              }
+            }
+
+            function onMouseUp(event){
+        		    isMouseDown = false;
+            }
+
+            function onPressKey(event){
+
+                mat4.translate(viewMatrix,viewMatrix, vistaActual1eraPersona);
+                if (event.keyCode==67){
+                }
+
+            }
+
+
+        </script>
+    </body>
+</html>
