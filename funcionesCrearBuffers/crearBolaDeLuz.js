@@ -2,7 +2,7 @@ function crearBolaDeLuz()
 {
     var pos=[];
     var normal=[];
-    var r= 1;
+    var r=2;
     var rows=128;	// filas
     var cols=256;	// columnas
 
@@ -38,5 +38,5 @@ function crearBolaDeLuz()
     }
 
 
-    return new Obj3D(bolaDeLuzMatrix,normalMatrix,pos,normal,index,{r: 255,g: 255,b: 0});
+    return new Obj3D(bolaDeLuzMatrix,normalMatrix,pos,normal,index);
 }

@@ -1,13 +1,11 @@
 
 class Obj3D{
-  constructor(localModelMatrix,localNormalMatrix,pos,normal,index,color){
+  constructor(localModelMatrix,localNormalMatrix,pos,normal,index){
   this.childs = [];
   this.numberOfChilds = 0;
   this.localModelMatrix = localModelMatrix;
   this.localNormalMatrix = localNormalMatrix;
   this.trianglesVerticeBuffer = gl.createBuffer();
-  this.color = color;
-
   gl.bindBuffer(gl.ARRAY_BUFFER, this.trianglesVerticeBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
 
@@ -42,9 +40,6 @@ class Obj3D{
         gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.trianglesIndexBuffer);
-        var colorMaterialUniform  = gl.getUniformLocation(glProgram, "colorMaterial");
-        gl.uniform3f(colorMaterialUniform, this.color.r, this.color.g, this.color.b);
-        
         gl.drawElements( gl.TRIANGLE_STRIP, this.trianglesIndexBuffer.number_vertex_point, gl.UNSIGNED_SHORT, 0);
 
         for(var i = this.numberOfChilds;i>0;i--){

@@ -199,9 +199,9 @@
                 //bolaDeLuz.drawObj();
                 lampara.drawObj();
                 //cilindro.drawObj();
-                
+                var colorMaterialUniform  = gl.getUniformLocation(glProgram, "colorMaterial");
 
-                //gl.uniform3f(colorMaterialUniform, 1.0,0.0,0.0);
+                gl.uniform3f(colorMaterialUniform, 1.0,0.0,0.0);
 
                 //rusa.drawObj();
                 animate();

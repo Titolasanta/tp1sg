@@ -2,7 +2,7 @@ function crearPaloDePoste()
 {
     var pos=[];
     var normal=[];
-    var r=0.50;
+    var r=0.85;
     var rows=128;	// filas
     var cols=256;	// columnas
 
@@ -37,5 +37,5 @@ function crearPaloDePoste()
     }
 
         var temp = mat4.create();
-        return new Obj3D(paloDePosteMatrix,temp,pos,normal,index, {r:160,g:160,b:160});
+        return new Obj3D(paloDePosteMatrix,temp,pos,normal,index);
 }
