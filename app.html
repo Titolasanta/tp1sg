@@ -39,6 +39,13 @@
       <script type="text/javascript" src='funcionesCrearBuffers/crearDeBarridoBezier.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearRusa.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearLampara.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearTapaCoche.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearConoPuntasCoche.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearCoche.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearCuerpoCoche.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearRectangulo.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearAsiento.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearTapaCircular.js'></script>
 
         <script>
 
@@ -58,15 +65,9 @@
             glProgram = null,
             fragmentShader = null,
             vertexShader = null;
-            var plancha;
-            var pelota;
-            var cilindro;
-            var paloDePoste;
-            var bolaDeLuz;
             var groups = [];
 
 
-            var lampara;
 
 
             var modelMatrix = mat4.create();
@@ -82,7 +83,7 @@
             var previousClientX = 0, previousClientY = 0;
 
             var vistaActual1eraPersona = [0,0,1];
-            var camara = new Camara(vec3.fromValues(0,0,-9),vec3.fromValues(0,1,0),vec3.fromValues(0,2,10))
+            var camara = new Camara(vec3.fromValues(0,0,-9),vec3.fromValues(0,1,0),vec3.fromValues(0,2,40))
 
             function initWebGL(){
 
@@ -128,18 +129,52 @@
 
               }
 
+              var curvaRusaRecorrido = [];
+              var plancha;
+              var pelota;
+              var cilindro;
+              var paloDePoste;
+              var bolaDeLuz;
+              var tapaCoche=[];
+              var conoPuntasCoche=[];
+              var lampara;
+              var coche;
+              var onTest;
+              var cantidadDeColumnas = 70;
             function setupBuffers(){
                 curva = crearCurvaBarridoBezier();
-                rusa = crearRusa();
-                plancha = crearPlancha();
                 pelota = crearPelota();
-                cilindro = crearCilindro();
                 paloDePoste = crearPaloDePoste();
                 bolaDeLuz = crearBolaDeLuz();
                 bolaDeLuz.addChild(paloDePoste);
                 lampara = crearLampara();
                 lampara.translate([0,10,0]);
                 lampara.rotate(Math.PI/2,[1,0,0]);
+                 onTest = crearPlancha(100,100);
+                 onTest.setColor([0.0,1.0,0.0]);
+
+                 rusa = crearRusa();
+                 onTest.addChild(rusa);
+                 rusa.translate([10,0,-15]);
+                 rusa.rotate(-Math.PI/2,[1,0,0]);
+                 rusa.setColor([0,0,1]);
+                 //onTest.addChild(rusa);
+                 var altoCil = 10;
+
+                 for(var i = 0;i<cantidadDeColumnas;i++){
+                   var seg = Math.floor(curvaRusaRecorrido.length * (i/cantidadDeColumnas) );
+                   var x = curvaRusaRecorrido[seg];
+                   if(Math.abs(x[1])<2 ){
+                     cantidadDeColumnas++;
+                     continue;
+                   }
+                   cilindro = crearCilindro(altoCil,0.2);
+                   cilindro.translate([x[0],x[1],x[2]]);
+                   cilindro.translate([0,0,-altoCil/2]);
+                   cilindro.rotate(Math.PI/2,[0,0,1]);
+                   rusa.addChild(cilindro);
+                 }
+                 onTest = creartapaCircular(10);
             }
 
 
@@ -182,7 +217,6 @@
 
             function animate(){
                 //cambios temporales
-
                 primeraPersona();
 
             }
@@ -193,15 +227,12 @@
 
                 //while true
                 //drawScene();
-
+                //rusa.drawObj();
                 setupVertexShaderMatrix();
-                //plancha.drawObj();
+                onTest.drawObj();
                 //bolaDeLuz.drawObj();
-                lampara.drawObj();
+                //lampara.drawObj();
                 //cilindro.drawObj();
-                var colorMaterialUniform  = gl.getUniformLocation(glProgram, "colorMaterial");
-
-                gl.uniform3f(colorMaterialUniform, 1.0,0.0,0.0);
 
                 //rusa.drawObj();
                 animate();
@@ -231,11 +262,11 @@
             }
 
             function onPressKey(event){
-
-                mat4.translate(viewMatrix,viewMatrix, vistaActual1eraPersona);
-                if (event.keyCode==67){
+                if (event.keyCode==99){
+                    onTest.rotate(0.05,[0,1,0]);
+                }else{
+                    onTest.rotate(0.05,[0,0,1]);
                 }
-
             }
 
 

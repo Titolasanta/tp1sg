@@ -9,15 +9,17 @@ function crearRusa()
 for(var i = 0, length = puntosCuniaRusa.length; i < length; i++){
     puntosCuniaRusa[i] /= 10;
 }
-  var fracPorPuntoForma=5;
-  var iteracionesTotalForma = fracPorPuntoForma*puntosCuniaRusa.length/3;
+  var fracPorPuntoForma=10;
+  var iteracionesTotalForma = fracPorPuntoForma*(puntosCuniaRusa.length/3);
 
-  var fracPorPuntoBarrido=4;
+  var fracPorPuntoBarrido=5;
   var iteracionesTotalBarrido = fracPorPuntoBarrido*puntosRecorridoRusa.length/3;
-
+  var r = 0.2;
   var recorridoSpline = new BSpline(puntosRecorridoRusa);
   var formaBezier = new Bezier(puntosCuniaRusa);
   for (var i=0;i<iteracionesTotalBarrido;i++){
+
+
       for (var j=0;j<iteracionesTotalForma;j++){
         var t = Math.floor(j/(4*fracPorPuntoForma));
         var u = j/(4*fracPorPuntoForma) - t;
@@ -26,6 +28,8 @@ for(var i = 0, length = puntosCuniaRusa.length; i < length; i++){
 
         t = Math.floor(i/fracPorPuntoBarrido);
         u = i/fracPorPuntoBarrido - t;
+        if(j==0)
+              curvaRusaRecorrido.push(recorridoSpline.splineGetPunto(t,u) );
 
         var punto = recorridoSpline.splineGetPunto(t,u);
         var puntoDer = recorridoSpline.splineGetDerPunto(t,u);
@@ -63,11 +67,15 @@ var cols = iteracionesTotalForma;
           // lleno el buffer de indices del quad
             index.push(i*cols+j);
             index.push((i+1)*cols+j);
-            //index.push(i*cols+j+1);
-            //index.push((i+1)*cols+j+1);
+            index.push(i*cols+j+1);
+            index.push((i+1)*cols+j+1);
         }
         index.push((i+1)*cols+cols-1);
     }
+        var temp = mat4.create();
+        mat4.identity(temp);
 
-return new Obj3D(modelMatrix,normalMatrix,pos,normal,index);
+            var temp2 = mat4.create();
+            mat4.identity(temp2);
+        return new Obj3D(temp,temp2,pos,normal,index);
 }

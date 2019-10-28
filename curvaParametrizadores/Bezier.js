@@ -45,9 +45,9 @@ class Bezier{
 
         var punto=new Object();
 
-        punto.x=this.baseBezier0(u)*this.PB[t*9]+this.baseBezier1(u)*this.PB[t*9+3]+this.baseBezier2(u)*this.PB[t*9+6]+this.baseBezier3(u)*this.PB[t*9+9];
-        punto.y=this.baseBezier0(u)*this.PB[t*9+1]+this.baseBezier1(u)*this.PB[t*9+3+1]+this.baseBezier2(u)*this.PB[t*9+6+1]+this.baseBezier3(u)*this.PB[t*9+9+1];
-        punto.z=this.baseBezier0(u)*this.PB[t*9+2]+this.baseBezier1(u)*this.PB[t*9+3+2]+this.baseBezier2(u)*this.PB[t*9+6+2]+this.baseBezier3(u)*this.PB[t*9+9+2];
+        punto.x=this.baseBezier0(u)*this.PB[t*12]+this.baseBezier1(u)*this.PB[t*12+3]+this.baseBezier2(u)*this.PB[t*12+6]+this.baseBezier3(u)*this.PB[t*12+9];
+        punto.y=this.baseBezier0(u)*this.PB[t*12+1]+this.baseBezier1(u)*this.PB[t*12+3+1]+this.baseBezier2(u)*this.PB[t*12+6+1]+this.baseBezier3(u)*this.PB[t*12+9+1];
+        punto.z=this.baseBezier0(u)*this.PB[t*12+2]+this.baseBezier1(u)*this.PB[t*12+3+2]+this.baseBezier2(u)*this.PB[t*12+6+2]+this.baseBezier3(u)*this.PB[t*12+9+2];
 
         return vec3.fromValues(punto.x,punto.y,punto.z);
       }
@@ -55,9 +55,9 @@ class Bezier{
       bezierGetDerPunto(t,u){
 
         var punto=new Object();
-        punto.x=this.baseBezierDer0(u)*this.PB[t*9]+this.baseBezierDer1(u)*this.PB[t*9+3]+this.baseBezierDer2(u)*this.PB[t*9+6]+this.baseBezierDer3(u)*this.PB[t*9+9];
-        punto.y=this.baseBezierDer0(u)*this.PB[t*9+1]+this.baseBezierDer1(u)*this.PB[t*9+3+1]+this.baseBezierDer2(u)*this.PB[t*9+6+1]+this.baseBezierDer3(u)*this.PB[t*9+9+1];
-        punto.z=this.baseBezierDer0(u)*this.PB[t*9+2]+this.baseBezierDer1(u)*this.PB[t*9+3+2]+this.baseBezierDer2(u)*this.PB[t*9+6+2]+this.baseBezierDer3(u)*this.PB[t*9+9+2];
+        punto.x=this.baseBezierDer0(u)*this.PB[t*12]+this.baseBezierDer1(u)*this.PB[t*12+3]+this.baseBezierDer2(u)*this.PB[t*12+6]+this.baseBezierDer3(u)*this.PB[t*12+9];
+        punto.y=this.baseBezierDer0(u)*this.PB[t*12+1]+this.baseBezierDer1(u)*this.PB[t*12+3+1]+this.baseBezierDer2(u)*this.PB[t*12+6+1]+this.baseBezierDer3(u)*this.PB[t*12+9+1];
+        punto.z=this.baseBezierDer0(u)*this.PB[t*12+2]+this.baseBezierDer1(u)*this.PB[t*12+3+2]+this.baseBezierDer2(u)*this.PB[t*12+6+2]+this.baseBezierDer3(u)*this.PB[t*12+9+2];
 
         return punto;
       }

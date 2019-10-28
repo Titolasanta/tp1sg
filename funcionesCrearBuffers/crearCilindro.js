@@ -1,11 +1,13 @@
-function crearCilindro()
+function crearCilindro(alto,r)
 {
+    if(!alto)
+      alto = 1;
+    if(!alto)
+      r=2;
     var pos=[];
     var normal=[];
-    var r=2;
-    var rows=128;	// filas
-    var cols=256;	// columnas
-
+    var rows=2;	// filas
+    var cols=100;	// columnas
     for (var i=0;i<=rows;i++){
         for (var j=0;j<=cols;j++){
             var pfi,tita;
@@ -14,7 +16,7 @@ function crearCilindro()
 
             pos.push(r  * Math.sin(pfi));
             pos.push(r * Math.cos(pfi));			// lleno el buffer de vértices
-            pos.push(i/rows);
+            pos.push(alto*i/rows-alto/2);
 
             normal.push( Math.sin(pfi));		// lleno el buffer de normales
             normal.push( Math.cos(pfi));
@@ -38,6 +40,10 @@ function crearCilindro()
     }
 
 
+        var temp = mat4.create();
+        mat4.identity(temp);
 
-            return new Obj3D(modelMatrix,normalMatrix,pos,normal,index);
+            var temp2 = mat4.create();
+            mat4.identity(temp2);
+        return new Obj3D(temp,temp2,pos,normal,index);
 }

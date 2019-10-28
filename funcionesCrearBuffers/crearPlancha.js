@@ -1,4 +1,4 @@
-function crearPlancha()
+function crearPlancha(largo,ancho)
 {
     var pos=[];
     var normal=[];
@@ -9,9 +9,14 @@ function crearPlancha()
     for (var i=0;i<rows;i++){
         for (var j=0;j<cols;j++){
 
-            pos.push(20*i/rows-10);			// lleno el buffer de vértices
-            pos.push(-1);
-            pos.push(20*j/cols-10);
+            var x = largo * i/rows - largo/2;
+            var y = 0;
+            var z = ancho*j/cols-ancho/2;
+
+
+            pos.push(x);			// lleno el buffer de vértices
+            pos.push(0);
+            pos.push(z);
 
             normal.push(0);		// lleno el buffer de normales
             normal.push(1);
@@ -28,10 +33,16 @@ function crearPlancha()
             // lleno el buffer de indices del quad
             index.push(i*cols+j);
             index.push((i+1)*cols+j);
+
+            index.push(i*cols+j+1);
+            index.push((i+1)*cols+j+1);
         }
         index.push((i+1)*cols+cols-1);
     }
-    var temp = mat4.create();
-    mat4.identity(temp);
-    return new Obj3D(temp,temp,pos,normal,index);
+        var temp = mat4.create();
+        mat4.identity(temp);
+
+            var temp2 = mat4.create();
+            mat4.identity(temp2);
+        return new Obj3D(temp,temp2,pos,normal,index);
 }

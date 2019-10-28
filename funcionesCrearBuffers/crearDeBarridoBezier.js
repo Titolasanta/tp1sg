@@ -100,6 +100,10 @@ function crearCurvaBarridoBezier()
             }
             index.push((i+1)*cols+cols-1);
         }
+            var temp = mat4.create();
+            mat4.identity(temp);
 
-    return new Obj3D(modelMatrix,normalMatrix,pos,normal,index);
+                var temp2 = mat4.create();
+                mat4.identity(temp2);
+            return new Obj3D(temp,temp2,pos,normal,index);
 }

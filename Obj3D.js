@@ -1,13 +1,17 @@
 
 class Obj3D{
-  constructor(localModelMatrix,localNormalMatrix,pos,normal,index){
+  constructor(localModelMatrix,localNormalMatrix,pos,normal,index,color){
   this.childs = [];
   this.numberOfChilds = 0;
   this.localModelMatrix = localModelMatrix;
   this.localNormalMatrix = localNormalMatrix;
   this.trianglesVerticeBuffer = gl.createBuffer();
+  this.vColor = [1.0,0.0,0.0];
+  if(color)
+    this.vColor = color;
   gl.bindBuffer(gl.ARRAY_BUFFER, this.trianglesVerticeBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
+
 
 
   this.trianglesNormalBuffer = gl.createBuffer();
@@ -20,11 +24,21 @@ class Obj3D{
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), gl.STATIC_DRAW);
 }
 
-  drawObj(){
+  drawObj(parentModelMatrix){
+        var tempMoldelMatrix = mat4.create();
+        if(!parentModelMatrix){
+          parentModelMatrix = mat4.create();
+          parentModelMatrix = mat4.identity(parentModelMatrix);
+        }
+    //console.log(this.localModelMatrix);
+
+        var colorMaterialUniform  = gl.getUniformLocation(glProgram, "colorMaterial");
+        gl.uniform3f(colorMaterialUniform, this.vColor[0],this.vColor[1],this.vColor[2]);
+
         var modelMatrixUniform = gl.getUniformLocation(glProgram, "modelMatrix");
         var normalMatrixUniform  = gl.getUniformLocation(glProgram, "normalMatrix");
 
-        gl.uniformMatrix4fv(modelMatrixUniform, false, this.localModelMatrix);
+        gl.uniformMatrix4fv(modelMatrixUniform, false,  mat4.multiply(tempMoldelMatrix,parentModelMatrix,this.localModelMatrix));
 
         gl.uniformMatrix4fv(normalMatrixUniform, false, this.localNormalMatrix);
 
@@ -43,7 +57,7 @@ class Obj3D{
         gl.drawElements( gl.TRIANGLE_STRIP, this.trianglesIndexBuffer.number_vertex_point, gl.UNSIGNED_SHORT, 0);
 
         for(var i = this.numberOfChilds;i>0;i--){
-          this.childs[i-1].drawObj();
+          this.childs[i-1].drawObj(tempMoldelMatrix);
         }
   }
   rotate(rotateAngle, directions){
@@ -56,20 +70,23 @@ class Obj3D{
     mat4.invert(this.localNormalMatrix,this.localNormalMatrix);
     mat4.transpose(this.localNormalMatrix,this.localNormalMatrix);
 
-    for (var i = 0; i < this.numberOfChilds; i++) {
-      this.childs[i].rotate(rotateAngle,directions);
-    }
   }
   translate(directions){
       mat4.translate(this.localModelMatrix,this.localModelMatrix, directions);
-
-    for (var i = 0; i < this.numberOfChilds; i++) {
-      this.childs[i].translate(directions);
-    }
   }
+
+  scale(directions){
+      mat4.scale(this.localModelMatrix,this.localModelMatrix, directions);
+  }
+
+
   addChild(child){
     this.childs[this.numberOfChilds] = child;
     this.numberOfChilds++;
+  }
+
+  setColor(vColor){
+    this.vColor = vColor;
   }
 
 }

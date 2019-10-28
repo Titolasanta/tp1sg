@@ -35,7 +35,10 @@ function crearPaloDePoste()
         }
         index.push((i+1)*cols+cols-1);
     }
-
         var temp = mat4.create();
-        return new Obj3D(paloDePosteMatrix,temp,pos,normal,index);
+        mat4.identity(temp);
+
+            var temp2 = mat4.create();
+            mat4.identity(temp2);
+        return new Obj3D(temp,temp2,pos,normal,index);
 }
