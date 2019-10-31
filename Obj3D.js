@@ -4,9 +4,12 @@ class Obj3D{
   this.childs = [];
   this.numberOfChilds = 0;
   this.localModelMatrix = localModelMatrix;
+
+
   this.localNormalMatrix = localNormalMatrix;
   this.trianglesVerticeBuffer = gl.createBuffer();
   this.vColor = [1.0,0.0,0.0];
+  this.first = 1;
   if(color)
     this.vColor = color;
   gl.bindBuffer(gl.ARRAY_BUFFER, this.trianglesVerticeBuffer);
@@ -27,8 +30,7 @@ class Obj3D{
   drawObj(parentModelMatrix){
         var tempMoldelMatrix = mat4.create();
         if(!parentModelMatrix){
-          parentModelMatrix = mat4.create();
-          parentModelMatrix = mat4.identity(parentModelMatrix);
+          parentModelMatrix = modelMatrix;
         }
     //console.log(this.localModelMatrix);
 
@@ -40,7 +42,14 @@ class Obj3D{
 
         gl.uniformMatrix4fv(modelMatrixUniform, false,  mat4.multiply(tempMoldelMatrix,parentModelMatrix,this.localModelMatrix));
 
-        gl.uniformMatrix4fv(normalMatrixUniform, false, this.localNormalMatrix);
+        var normalRot = mat3.create();
+
+        mat3.fromMat4(normalRot,tempMoldelMatrix);
+        mat3.invert(normalRot,normalRot);
+        mat3.transpose(normalRot,normalRot);
+
+
+        gl.uniformMatrix3fv(normalMatrixUniform, false, normalRot);
 
 
         var vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
@@ -64,11 +73,16 @@ class Obj3D{
 
     mat4.rotate(this.localModelMatrix,this.localModelMatrix, rotateAngle, directions);
 
-    mat4.identity(this.localNormalMatrix);
-    mat4.multiply(this.localNormalMatrix,viewMatrix,this.localModelMatrix);
+    /*var normalRot = mat4.create();
+    mat4.rotate(normalRot,normalRot, rotateAngle, directions);
+    mat3.fromMat4(normalRot,normalRot);
 
-    mat4.invert(this.localNormalMatrix,this.localNormalMatrix);
-    mat4.transpose(this.localNormalMatrix,this.localNormalMatrix);
+
+    mat3.invert(normalRot,normalRot);
+    mat3.transpose(normalRot,normalRot);
+
+    mat3.multiply(normalRot,normalRot,this.localNormalMatrix);
+    */
 
   }
   translate(directions){
@@ -76,6 +90,7 @@ class Obj3D{
   }
 
   scale(directions){
+
       mat4.scale(this.localModelMatrix,this.localModelMatrix, directions);
   }
 
@@ -87,6 +102,27 @@ class Obj3D{
 
   setColor(vColor){
     this.vColor = vColor;
+    for(var i = this.numberOfChilds;i>0;i--){
+      this.childs[i-1].setColor(vColor);
+    }
+  }
+  lookAt(from,to,up){
+    if(this.first == 1){
+      this.preLookAtMat = JSON.parse(JSON.stringify(this.localModelMatrix));//clone Obj
+      this.first = 0;
+    }
+
+
+
+    var tempm = mat4.create();
+    mat4.targetTo(tempm,from,to,up);
+
+    mat4.mul(this.localModelMatrix,this.preLookAtMat,tempm);
   }
 
+  giraTutiGirarHijos(porciento){
+    for(var i = 0;i<cantidadDeSillas;i++){
+      this.childs[i+2].rotate(-(Math.PI/2)*porciento/100,[1,0,0]);
+    }
+  }
 }

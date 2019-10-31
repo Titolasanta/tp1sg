@@ -1,4 +1,4 @@
-function crearCoche(){
+function crearCoche(size){
 
   var tapaCoche=[];
   var conoPuntasCoche=[];
@@ -15,7 +15,8 @@ function crearCoche(){
                 tapaCoche[0].addChild(tapaCoche[1]);
 
                 var cuerpoCoche = crearCuerpoCoche();
-
+                cuerpoCoche.setColor([0.5,0.5,0.5]);
+                
                 cuerpoCoche.translate([0,0,9]);
                 tapaCoche[0].addChild(cuerpoCoche);
 

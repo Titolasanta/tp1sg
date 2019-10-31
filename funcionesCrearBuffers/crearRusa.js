@@ -4,15 +4,19 @@ function crearRusa()
 {
   var pos=[];
   var normal=[];
+  var puntosRecorridoRusa = puntosRecorridoRusa1;
 
+  for(var i = 0, length = puntosRecorridoRusa.length; i < length; i++){
+      puntosRecorridoRusa[i] *= 3;
+  }
 
 for(var i = 0, length = puntosCuniaRusa.length; i < length; i++){
     puntosCuniaRusa[i] /= 10;
 }
-  var fracPorPuntoForma=10;
+  var fracPorPuntoForma=2;
   var iteracionesTotalForma = fracPorPuntoForma*(puntosCuniaRusa.length/3);
 
-  var fracPorPuntoBarrido=5;
+  var fracPorPuntoBarrido=20;
   var iteracionesTotalBarrido = fracPorPuntoBarrido*puntosRecorridoRusa.length/3;
   var r = 0.2;
   var recorridoSpline = new BSpline(puntosRecorridoRusa);
@@ -24,12 +28,11 @@ for(var i = 0, length = puntosCuniaRusa.length; i < length; i++){
         var t = Math.floor(j/(4*fracPorPuntoForma));
         var u = j/(4*fracPorPuntoForma) - t;
         var posFroma = formaBezier.bezierGetPunto(t,u);
+        var derForma = formaBezier.bezierGetDerPunto(t,u);
         //var posFroma = [r*Math.cos(2*Math.PI*j/iteracionesTotalForma),r*Math.sin(2*Math.PI*j/iteracionesTotalForma),0];
 
         t = Math.floor(i/fracPorPuntoBarrido);
         u = i/fracPorPuntoBarrido - t;
-        if(j==0)
-              curvaRusaRecorrido.push(recorridoSpline.splineGetPunto(t,u) );
 
         var punto = recorridoSpline.splineGetPunto(t,u);
         var puntoDer = recorridoSpline.splineGetDerPunto(t,u);
@@ -41,6 +44,10 @@ for(var i = 0, length = puntosCuniaRusa.length; i < length; i++){
         var y = posFroma[2]*tangente[1]+posFroma[1]*vNormal[1]+posFroma[0]*binormal[1] + punto[1];
         var z = posFroma[2]*tangente[2]+posFroma[1]*vNormal[2]+posFroma[0]*binormal[2] + punto[2];
 
+        if(j==0&&i>1&&i<iteracionesTotalBarrido-fracPorPuntoBarrido){
+              curvaRusaRecorrido.push([x,y,z] );
+              curvaRusaRecorridoNormal.push(vNormal)
+        }
         if(Number.isNaN(x)||Number.isNaN(y)||Number.isNaN(z)){
           system.alert("hola");
         }
@@ -48,10 +55,12 @@ for(var i = 0, length = puntosCuniaRusa.length; i < length; i++){
         pos.push(y);
         pos.push(z);
 
+        var vN = formaBezier.bezierGetNormal(posFroma,derForma);
 
-        normal.push(x-punto[0]);		// lleno el buffer de normales
-        normal.push(y-punto[1]);
-        normal.push(z-punto[2]);
+        //mal
+        normal.push(vN[0]);		// lleno el buffer de normales
+        normal.push(vN[1]);
+        normal.push(vN[2]);
     }
 }
 
@@ -75,7 +84,7 @@ var cols = iteracionesTotalForma;
         var temp = mat4.create();
         mat4.identity(temp);
 
-            var temp2 = mat4.create();
-            mat4.identity(temp2);
+            var temp2 = mat3.create();
+            mat3.identity(temp2);
         return new Obj3D(temp,temp2,pos,normal,index);
 }

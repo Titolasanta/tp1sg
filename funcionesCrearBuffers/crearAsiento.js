@@ -4,5 +4,4 @@ function crearAsiento(){
   rect2.rotate(Math.PI/2,[1.0,0.0,0.0]);
   rect1.addChild(rect2);
   return rect1;
-
 }

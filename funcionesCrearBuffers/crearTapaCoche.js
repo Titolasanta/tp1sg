@@ -30,9 +30,9 @@ function crearTapaCoche()
 
 
             //mal
-            normal.push(1);		// lleno el buffer de normales
+            normal.push(0);		// lleno el buffer de normales
             normal.push(0);
-            normal.push(0);
+            normal.push(1);
     }
 
     var index=[];
@@ -46,7 +46,7 @@ function crearTapaCoche()
             var temp = mat4.create();
             mat4.identity(temp);
 
-                var temp2 = mat4.create();
-                mat4.identity(temp2);
+                        var temp2 = mat3.create();
+                mat3.identity(temp2);
             return new Obj3D(temp,temp2,pos,normal,index,[0.0,1.0,0.0]);
 }

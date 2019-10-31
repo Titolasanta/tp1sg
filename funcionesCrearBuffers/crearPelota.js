@@ -25,9 +25,9 @@ function crearPelota(r)
 
     var index=[];
 
-    for (var i=0;i<=rows-1;i++){
+    for (var i=0;i<rows;i++){
         index.push(i*cols);
-        for (var j=0;j<=cols-1;j++){
+        for (var j=0;j<=cols;j++){
 
             // lleno el buffer de indices del quad
             index.push(i*cols+j);
@@ -38,10 +38,17 @@ function crearPelota(r)
         index.push((i+1)*cols+cols-1);
     }
 
+    for (var j=0;j<=cols;j++){
+
+        // lleno el buffer de indices del quad
+        index.push(rows*cols-j-1);
+        index.push(rows*cols-1);
+    }
+
         var temp = mat4.create();
         mat4.identity(temp);
 
-            var temp2 = mat4.create();
-            mat4.identity(temp2);
+                    var temp2 = mat3.create();
+            mat3.identity(temp2);
         return new Obj3D(temp,temp2,pos,normal,index);
 }

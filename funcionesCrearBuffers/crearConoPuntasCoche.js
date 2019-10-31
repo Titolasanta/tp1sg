@@ -18,7 +18,7 @@ function crearConoPuntasCoche()
             var t = Math.floor(j/(4*fracPorPuntoForma));
             var u = j/(4*fracPorPuntoForma) - t;
             var posForma = bezier.bezierGetPunto(t,u);
-
+            var derForma = bezier.bezierGetDerPunto(t,u);
             var x = posForma[0]*(1+i/iteracionesTotalBarrido);
             var y = posForma[1]*(1+i/iteracionesTotalBarrido);
             var z = posForma[2]+i;
@@ -30,12 +30,16 @@ function crearConoPuntasCoche()
               system.alert("hola");
 
               }
+            var rotM = mat4.create();
+            var distEuc = Math.pow((Math.pow(posForma[0],2)*Math.pow(posForma[0],2)),0.5)
+            mat4.fromRotation(rotM,Math.atan(distEuc/iteracionesTotalBarrido),[0,0,1]);
+            var vN = bezier.bezierGetNormal(posForma,derForma);
+            var vN = [vN[0],vN[1],vN[2],1];
+            vN = multiplyMatrixAndPoint(rotM,vN);
+            normal.push(vN[0]);		// lleno el buffer de normales
+            normal.push(vN[1]);
+            normal.push(vN[2]);
 
-
-              //mal
-              normal.push(1);		// lleno el buffer de normales
-              normal.push(0);
-              normal.push(0);
       }
     }
 
@@ -58,7 +62,7 @@ function crearConoPuntasCoche()
         var temp = mat4.create();
         mat4.identity(temp);
 
-            var temp2 = mat4.create();
-            mat4.identity(temp2);
+                    var temp2 = mat3.create();
+            mat3.identity(temp2);
         return new Obj3D(temp,temp2,pos,normal,index);
 }

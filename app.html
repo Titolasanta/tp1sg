@@ -20,7 +20,7 @@
       //includes
       <script type="text/javascript" src="js/gl-matrix.js"></script>
       <script type="text/javascript" src="bolsaDeDatos.js"></script>
-      <script type="text/javascript" src="vistas.js"></script>
+      <script type="text/javascript" src="Vista.js"></script>
 
       <script type="text/javascript" src="codigoMagico.js"></script>
       <script type="text/javascript" src="Obj3D.js"></script>
@@ -38,6 +38,7 @@
       <script type="text/javascript" src='funcionesCrearBuffers/crearDeBarridoSpline.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearDeBarridoBezier.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearRusa.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearRusaEntera.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearLampara.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearTapaCoche.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearConoPuntasCoche.js'></script>
@@ -46,6 +47,9 @@
       <script type="text/javascript" src='funcionesCrearBuffers/crearRectangulo.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearAsiento.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearTapaCircular.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearCilindroTriagular.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearGiraTuti.js'></script>
+      <script type="text/javascript" src='funcionesCrearBuffers/crearTapaGiraTuti.js'></script>
 
         <script>
 
@@ -56,7 +60,10 @@
             document.getElementById("body").addEventListener("mousemove", onMouseMove);
             document.getElementById("body").addEventListener("keypress", onPressKey);
             var isMouseDown = false;
+
+            var wasMouseDown = false;
             var mat4=glMatrix.mat4;
+            var mat3=glMatrix.mat3;
             var vec3=glMatrix.vec3;
             var vec4=glMatrix.vec4;
 
@@ -83,7 +90,7 @@
             var previousClientX = 0, previousClientY = 0;
 
             var vistaActual1eraPersona = [0,0,1];
-            var camara = new Camara(vec3.fromValues(0,0,-9),vec3.fromValues(0,1,0),vec3.fromValues(0,2,40))
+            var camara = new Camara(vec3.fromValues(0,0,-9),vec3.fromValues(0,1,0),vec3.fromValues(0,2,60))
 
             function initWebGL(){
 
@@ -120,7 +127,7 @@
 
                 // Matrix de Proyeccion Perspectiva
 
-                mat4.perspective(projMatrix,Math.PI/4, canvas.width / canvas.height, 0.1, 100.0);
+                mat4.perspective(projMatrix,Math.PI/4, canvas.width / canvas.height, 0.1, 100000.0);
 
                 mat4.identity(modelMatrix);
 
@@ -130,6 +137,7 @@
               }
 
               var curvaRusaRecorrido = [];
+              var curvaRusaRecorridoNormal = [];
               var plancha;
               var pelota;
               var cilindro;
@@ -140,41 +148,52 @@
               var lampara;
               var coche;
               var onTest;
-              var cantidadDeColumnas = 70;
+              var cantidadDeColumnas = 10;
+              var contadorDeCoche = 0;
+
+              var vista = new Vista();
+              var tapaGiraTuti;
+              var cantidadDeSillas = 3;
+              var transRusa = [100,50,0];
+              var transGira = [-60,-40,0];
             function setupBuffers(){
-                curva = crearCurvaBarridoBezier();
-                pelota = crearPelota();
-                paloDePoste = crearPaloDePoste();
-                bolaDeLuz = crearBolaDeLuz();
-                bolaDeLuz.addChild(paloDePoste);
+
+                onTest = crearPlancha(1000,1000);
+                onTest.setColor([0.0,1.0,0.0]);
+
+                var cielo = crearPelota(2000);
+                cielo.setColor([1/3,5/6,1]);
+                onTest.addChild(cielo);
+                rusa = crearRusaEntera(cantidadDeColumnas);
+                rusa.translate(transRusa);
+
+                onTest.addChild(rusa);
+                var altura = 30;
+                tapaGiraTuti = crearTapaGiraTuti(altura,cantidadDeSillas);
+                var giraTuti = crearGiraTuti(altura,cantidadDeSillas);
+
+                giraTuti.addChild(tapaGiraTuti);
+                onTest.addChild(giraTuti);
+                giraTuti.translate(transGira);
+                giraTuti.scale([0.5,0.5,0.5]);
+
                 lampara = crearLampara();
-                lampara.translate([0,10,0]);
+                lampara.translate([0,1,0]);
+                lampara.scale([0.1,0.1,0.1])
+
+                lampara.translate([0,100,0]);
+                lampara.scale([10.1,10.1,10.1])
+
                 lampara.rotate(Math.PI/2,[1,0,0]);
-                 onTest = crearPlancha(100,100);
-                 onTest.setColor([0.0,1.0,0.0]);
+                onTest.addChild(lampara);
 
-                 rusa = crearRusa();
-                 onTest.addChild(rusa);
-                 rusa.translate([10,0,-15]);
-                 rusa.rotate(-Math.PI/2,[1,0,0]);
-                 rusa.setColor([0,0,1]);
-                 //onTest.addChild(rusa);
-                 var altoCil = 10;
+                coche = crearCoche();
+                coche.translate([0,0,1.5]);
+                coche.scale([0.05,0.05,0.05]);
+                rusa.addChild(coche);
 
-                 for(var i = 0;i<cantidadDeColumnas;i++){
-                   var seg = Math.floor(curvaRusaRecorrido.length * (i/cantidadDeColumnas) );
-                   var x = curvaRusaRecorrido[seg];
-                   if(Math.abs(x[1])<2 ){
-                     cantidadDeColumnas++;
-                     continue;
-                   }
-                   cilindro = crearCilindro(altoCil,0.2);
-                   cilindro.translate([x[0],x[1],x[2]]);
-                   cilindro.translate([0,0,-altoCil/2]);
-                   cilindro.rotate(Math.PI/2,[0,0,1]);
-                   rusa.addChild(cilindro);
-                 }
-                 onTest = creartapaCircular(10);
+
+
             }
 
 
@@ -212,12 +231,47 @@
             }
 
 
-
-
-
+            var xc,yc,nc;
+            var velocidadGiraTuti = 0;
+            var acelerandoGiraTuti = 1;
+            var staleGiraTuti = 0;
             function animate(){
                 //cambios temporales
-                primeraPersona();
+
+                  yc = curvaRusaRecorrido[contadorDeCoche];
+                  //coche.translate([-x[0]*20,-x[2]*20,x[1]*20])
+                  contadorDeCoche = (contadorDeCoche+1)%curvaRusaRecorrido.length;
+
+                  xc = curvaRusaRecorrido[contadorDeCoche];
+                  //coche.translate([x[0]*20,x[2]*20,-x[1]*20])
+
+                  nc = curvaRusaRecorridoNormal[contadorDeCoche];
+                  var scaleCoche = 20;
+                  vista.runVista();
+                  coche.lookAt([xc[0]*scaleCoche,xc[1]*scaleCoche,xc[2]*scaleCoche],[yc[0]*scaleCoche,yc[1]*scaleCoche,yc[2]*scaleCoche],[nc[0],nc[1],nc[2]])
+
+
+                  if(staleGiraTuti == 0 && acelerandoGiraTuti == 1 && velocidadGiraTuti == 100){
+                    acelerandoGiraTuti = 0;
+                    staleGiraTuti = 1;
+                  }
+                  if(staleGiraTuti != 0 && acelerandoGiraTuti == 0 && velocidadGiraTuti == 100){
+                    staleGiraTuti = (staleGiraTuti+1)%300;
+                  }
+                  if(staleGiraTuti == 0 && acelerandoGiraTuti == 0 && velocidadGiraTuti == 100){
+                    acelerandoGiraTuti = -1;
+                  }
+                  if(staleGiraTuti == 0 && acelerandoGiraTuti == -1 && velocidadGiraTuti == 0){
+                    acelerandoGiraTuti = 1;
+                  }
+
+
+                  velocidadGiraTuti = velocidadGiraTuti+acelerandoGiraTuti;
+                  var procientoGiro = velocidadGiraTuti/80;
+                  tapaGiraTuti.rotate(Math.PI*2*procientoGiro/1000,[1,0,0]);
+                  tapaGiraTuti.rotate(Math.PI*2*procientoGiro/100,[0,1,0]);
+                  tapaGiraTuti.giraTutiGirarHijos(acelerandoGiraTuti*procientoGiro/1.5);
+
 
             }
 
@@ -246,6 +300,7 @@
             var mouse = {x: 0, y: 0};
 
             function onMouseMove(e){
+              previousClientX = mouse.x, previousClientY = mouse.y
           		mouse.x = e.clientX || e.pageX;
           		mouse.y = e.clientY || e.pageY
           	}
@@ -253,20 +308,22 @@
             function onMouseDown(event){
               if(!isMouseDown){
                 isMouseDown = true;
-                previousClientX = mouse.x, previousClientY = mouse.y
               }
             }
 
             function onMouseUp(event){
-        		    isMouseDown = false;
+              if(isMouseDown){
+                if(wasMouseDown){
+                  isMouseDown = false;
+                  wasMouseDown = false;
+                }else{
+                  wasMouseDown = true;
+                }
+              }
             }
 
             function onPressKey(event){
-                if (event.keyCode==99){
-                    onTest.rotate(0.05,[0,1,0]);
-                }else{
-                    onTest.rotate(0.05,[0,0,1]);
-                }
+              vista.handlePressKeyEvent(event);
             }
 
 
