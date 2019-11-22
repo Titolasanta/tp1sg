@@ -2,7 +2,7 @@ function crearCilindro(alto,r)
 {
     if(!alto)
       alto = 1;
-    if(!alto)
+    if(!r)
       r=2;
     var pos=[];
     var normal=[];

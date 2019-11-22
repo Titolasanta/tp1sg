@@ -1,20 +1,21 @@
 function crearRusaEntera(cantidadDeColumnas){
-  if(cantidadDeColumnas>70)
-    throw cantidadDeColumnas;
+
   var rusa = crearRusa();
   rusa.rotate(-Math.PI/2,[1,0,0]);
   rusa.setColor([0.3,0.3,0.3]);
-  var altoCil = 10;
+  var altoCil = 100;
   var bug = 0;
   for(var i = 0;i<cantidadDeColumnas;i++){
     var seg = Math.floor(curvaRusaRecorrido.length * (i/cantidadDeColumnas) );
     var x = curvaRusaRecorrido[seg];
+
     if(Math.abs(x[1])<2 && Math.abs(x[0])<3){
       bug++;
       if(bug >1000){
         console.log("demasiadas Columnas");
         break;
-      }cantidadDeColumnas++;
+      }
+      cantidadDeColumnas++;
       continue;
     }
     cilindro = crearCilindro(altoCil,0.2);

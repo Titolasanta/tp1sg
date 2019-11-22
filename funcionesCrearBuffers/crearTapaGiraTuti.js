@@ -1,6 +1,5 @@
-function crearTapaGiraTuti(altura,cantidadDeSillas){
+function crearTapaGiraTuti(altura,cantidadDeSillas,h){
 
-  var h = 2;
   var ri1 = 7;
   var rf = 10;
   var ri2 = 6;
@@ -34,7 +33,7 @@ function crearTapaGiraTuti(altura,cantidadDeSillas){
     soga.setColor([0.5,0.25,0.0]);
 
     var silla = crearAsiento();
-    silla.translate([0,0,AnchoTieneSillas*2/3]);
+    silla.translate([0,0,altura*2/3]);
     silla.rotate(-Math.PI/2,[0,0,1]);
     silla.rotate(-Math.PI/2,[1,0,0]);
     silla.setColor([0.7,0.7,0.7])

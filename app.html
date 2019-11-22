@@ -51,9 +51,56 @@
       <script type="text/javascript" src='funcionesCrearBuffers/crearGiraTuti.js'></script>
       <script type="text/javascript" src='funcionesCrearBuffers/crearTapaGiraTuti.js'></script>
 
+
+
+      <form  id = "loginForm"  class="w3-container">
+
+          <h2>LogIn</h2>
+          <label>Cantidad de sillas</label>
+          <input id="cantidadSillas" class="w3-input" type="text" placeholder="3">
+          <label>Cantidad De Columnas</label>
+          <input id="cantidadColumnas" class="w3-input" type="text" placeholder="10">
+          <label>Altura de aparato de sillas</label>
+          <input id="AlturaSillas" class="w3-input" type="text" placeholder="30">
+          <select style="width: 500px;"  name="listaCiudadanos" size=2 id="selector" multiple>
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+          </select>
+          <button  type="button" onclick=  "reSetupBuffers()"  >Volver a dibujar</button>
+      </form>
+
+
+
+
         <script>
 
+            function reSetupBuffers(){
+              var cntSillas =  parseInt(document.getElementById("cantidadSillas").value);
+              if(!cntSillas){
+                cntSillas = 3;
+              }
+              var cntColumnas = parseInt(document.getElementById("cantidadColumnas").value);
+              if(!cntColumnas){
+                cntColumnas = 10;
+              }
+              var altSillas =  parseInt(document.getElementById("AlturaSillas").value);
+              if(!altSillas){
+                altSillas = 30;
+              }
 
+              var selector = document.getElementById("selector");
+              var rusaEle = selector.selectedIndex;
+              if(rusaEle == 1){
+                rusaEle = 2;
+              }else {
+                rusaEle = 1;
+              }
+              curvaRusaElegida = rusaEle;
+              cantidadDeSillas = cntSillas;
+              cantidadDeColumnas = cntColumnas;
+              alturaGiraTuti = altSillas;
+              setupBuffers();
+            }
 
             document.getElementById("body").addEventListener("mousedown", onMouseDown);
             document.getElementById("body").addEventListener("mouseup", onMouseUp);
@@ -135,9 +182,8 @@
 
 
               }
-
-              var curvaRusaRecorrido = [];
-              var curvaRusaRecorridoNormal = [];
+              var curvaRusaElegida = 1;
+              var primeraEjecuccion = true;
               var plancha;
               var pelota;
               var cilindro;
@@ -148,16 +194,21 @@
               var lampara;
               var coche;
               var onTest;
-              var cantidadDeColumnas = 10;
               var contadorDeCoche = 0;
+              var cantidadDeColumnas = 10;
 
+              var curvaRusaRecorrido =[];
+              var curvaRusaRecorridoNormal = [];
               var vista = new Vista();
               var tapaGiraTuti;
               var cantidadDeSillas = 3;
               var transRusa = [100,50,0];
               var transGira = [-60,-40,0];
-            function setupBuffers(){
+              var alturaGiraTuti = 30;
 
+            function setupBuffers(){
+                curvaRusaRecorrido = [];
+                curvaRusaRecorridoNormal = [];
                 onTest = crearPlancha(1000,1000);
                 onTest.setColor([0.0,1.0,0.0]);
 
@@ -168,8 +219,9 @@
                 rusa.translate(transRusa);
 
                 onTest.addChild(rusa);
-                var altura = 30;
-                tapaGiraTuti = crearTapaGiraTuti(altura,cantidadDeSillas);
+                var altura = alturaGiraTuti;
+                var h = altura/15;
+                tapaGiraTuti = crearTapaGiraTuti(altura,cantidadDeSillas,h);
                 var giraTuti = crearGiraTuti(altura,cantidadDeSillas);
 
                 giraTuti.addChild(tapaGiraTuti);
@@ -191,9 +243,11 @@
                 coche.translate([0,0,1.5]);
                 coche.scale([0.05,0.05,0.05]);
                 rusa.addChild(coche);
+                primeraEjecuccion = false;
 
-
-
+                velocidadGiraTuti = 0;
+                acelerandoGiraTuti = 1;
+                staleGiraTuti = 0;
             }
 
 
@@ -306,20 +360,13 @@
           	}
 
             function onMouseDown(event){
-              if(!isMouseDown){
                 isMouseDown = true;
-              }
             }
 
             function onMouseUp(event){
-              if(isMouseDown){
-                if(wasMouseDown){
                   isMouseDown = false;
-                  wasMouseDown = false;
-                }else{
-                  wasMouseDown = true;
-                }
-              }
+                //  vista.rotacionQuintaCamaraX = 0;
+                  //vista.rotacionQuintaCamaraY = 0;
             }
 
             function onPressKey(event){

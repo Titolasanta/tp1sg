@@ -2,15 +2,17 @@
 class BSpline{
 	constructor(puntosBase){
 		this.PB = puntosBase;
-		for (var j = 0; j < 0; j++) {
-			for (var i = 0; i < 3; i++) {
-				this.PB.unshift(puntosBase[i*2]);//pongo 2 veces mas al comienzo el primer punto
+		if(primeraEjecuccion){
+			for (var j = 0; j < 0; j++) {
+				for (var i = 0; i < 3; i++) {
+					this.PB.unshift(puntosBase[i*2]);//pongo 2 veces mas al comienzo el primer punto
+				}
 			}
-		}
-		for (var j = 0; j < 3; j++) {
-			var len = puntosBase.length
-			for (var i = len-3; i < len; i++) {
-				this.PB.push(puntosBase[i]);//pongo 3 veces mas al final el ultimo punto
+			for (var j = 0; j < 3; j++) {
+				var len = puntosBase.length
+				for (var i = len-3; i < len; i++) {
+					this.PB.push(puntosBase[i]);//pongo 3 veces mas al final el ultimo punto
+				}
 			}
 		}
 	}
